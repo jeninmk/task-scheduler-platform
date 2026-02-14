@@ -5,7 +5,7 @@ spring:
   application:
     name: auth-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/auth_db
+    url: jdbc:postgresql://localhost:5432/taskscheduler
     username: postgres
     password: password
     driver-class-name: org.postgresql.Driver
@@ -18,17 +18,8 @@ spring:
         format_sql: true
     show-sql: true
 
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka
-  instance:
-    prefer-ip-address: true
-
-app:
-  jwt:
-    secret: your-secret-key-change-in-production
-    expiration: 86400000 # 24 hours
+# Eureka config removed - will be provided by config server
+# app.jwt.secret will be provided by config server
 
 logging:
   level:

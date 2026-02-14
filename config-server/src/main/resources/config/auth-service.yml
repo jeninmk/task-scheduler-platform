@@ -1,0 +1,16 @@
+# Local development configuration for auth-service
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/taskscheduler
+    username: postgres
+    password: password
+
+# Eureka disabled for local development
+eureka:
+  client:
+    enabled: false
+
+app:
+  jwt:
+    secret: your-secret-key-change-in-production
+    expiration: 86400000

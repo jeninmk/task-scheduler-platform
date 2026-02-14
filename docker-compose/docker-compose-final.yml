@@ -1,0 +1,154 @@
+version: '3.8'
+
+services:
+  # Database
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: taskscheduler
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - task-scheduler-network
+
+  # RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - task-scheduler-network
+
+  # Discovery Service (Eureka) - MUST START FIRST
+  discovery-service:
+    image: taskscheduler/discovery-service:1.0.0
+    container_name: discovery-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker    ports:
+      - "8761:8761"
+    networks:
+      - task-scheduler-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # Config Server
+  config-server:
+    image: taskscheduler/config-server:1.0.0
+    container_name: config-server
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker    ports:
+      - "8888:8888"
+    networks:
+      - task-scheduler-network
+    restart: unless-stopped
+
+  # Auth Service
+  auth-service:
+    image: taskscheduler/auth-service:1.0.0
+    container_name: auth-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker    ports:
+      - "8081:8081"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/taskscheduler
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: password
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+      postgres:
+        condition: service_started
+    networks:
+      - task-scheduler-network
+    restart: unless-stopped
+
+  # Task Service
+  task-service:
+    image: taskscheduler/task-service:1.0.0
+    container_name: task-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker    ports:
+      - "8082:8082"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/taskscheduler
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+      postgres:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+    networks:
+      - task-scheduler-network
+    restart: unless-stopped
+
+  # Notification Service
+  notification-service:
+    image: taskscheduler/notification-service:1.0.0
+    container_name: notification-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker    ports:
+      - "8083:8083"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+    networks:
+      - task-scheduler-network
+    restart: unless-stopped
+
+  # API Gateway
+  api-gateway:
+    image: taskscheduler/api-gateway:1.0.0
+    container_name: api-gateway
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker    ports:
+      - "8080:8080"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+    networks:
+      - task-scheduler-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+
+networks:
+  task-scheduler-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

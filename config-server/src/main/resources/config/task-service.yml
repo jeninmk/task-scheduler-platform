@@ -1,0 +1,19 @@
+# Local development configuration for task-service
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/taskscheduler
+    username: postgres
+    password: password
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+# Eureka disabled for local development
+eureka:
+  client:
+    enabled: false
+
+app:
+  auth-service-url: http://localhost:8081

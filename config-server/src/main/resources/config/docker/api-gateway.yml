@@ -1,0 +1,37 @@
+# Docker configuration for api-gateway
+spring:
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: auth-service
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - RewritePath=/api/auth/(?<segment>.*), /$\{segment}
+        - id: task-service
+          uri: lb://TASK-SERVICE
+          predicates:
+            - Path=/api/tasks/**
+          filters:
+            - RewritePath=/api/tasks/(?<segment>.*), /$\{segment}
+        - id: notification-service
+          uri: lb://NOTIFICATION-SERVICE
+          predicates:
+            - Path=/api/notification/**
+          filters:
+            - RewritePath=/api/notification/(?<segment>.*), /$\{segment}
+
+# Eureka Configuration - ENABLED for Docker
+eureka:
+  client:
+    enabled: true
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://discovery-service:8761/eureka}
+  instance:
+    hostname: ${EUREKA_INSTANCE_HOSTNAME:api-gateway}
+    prefer-ip-address: false

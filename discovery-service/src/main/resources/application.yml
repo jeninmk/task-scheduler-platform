@@ -1,4 +1,3 @@
-# discovery-service/src/main/resources/application.yml
 server:
   port: 8761
 
@@ -7,13 +6,20 @@ spring:
     name: discovery-service
 
 eureka:
+  instance:
+    hostname: discovery-service  # Container hostname for Docker
+    prefer-ip-address: false
   client:
     register-with-eureka: false
     fetch-registry: false
+    service-url:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka
   server:
     wait-time-in-ms-when-sync-empty: 0
+    enable-self-preservation: false  # Helpful for development
 
 logging:
   level:
-    com.netflix.eureka: OFF
-    com.netflix.discovery: OFF
+    com.netflix.eureka: DEBUG  # Changed to DEBUG for troubleshooting
+    com.netflix.discovery: DEBUG
+    org.springframework.cloud: DEBUG

@@ -1,4 +1,3 @@
-// discovery-service/src/main/java/com/taskscheduler/discovery/DiscoveryServiceApplication.java
 package com.taskscheduler.discovery;
 
 import org.springframework.boot.SpringApplication;

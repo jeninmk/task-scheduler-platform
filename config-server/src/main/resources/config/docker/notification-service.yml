@@ -1,0 +1,19 @@
+# Docker configuration for notification-service
+spring:
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:rabbitmq}
+    port: ${SPRING_RABBITMQ_PORT:5672}
+    username: ${SPRING_RABBITMQ_USERNAME:guest}
+    password: ${SPRING_RABBITMQ_PASSWORD:guest}
+
+# Eureka Configuration - ENABLED for Docker
+eureka:
+  client:
+    enabled: true
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://discovery-service:8761/eureka}
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    hostname: ${EUREKA_INSTANCE_HOSTNAME:notification-service}
+    prefer-ip-address: false

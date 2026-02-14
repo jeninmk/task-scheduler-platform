@@ -4,17 +4,21 @@ server:
 spring:
   application:
     name: config-server
+  profiles:
+    active: native
   cloud:
     config:
       server:
-        git:
-          uri: https://github.com/your-repo/config-repo
-          default-label: main
-          clone-on-start: true
+        native:
+          search-locations: classpath:/config
 
+# Config server itself doesn't need Eureka
 eureka:
   client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka
-  instance:
-    prefer-ip-address: true
+    enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

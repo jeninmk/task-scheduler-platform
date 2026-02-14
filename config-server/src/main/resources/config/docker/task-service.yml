@@ -1,0 +1,26 @@
+# Docker configuration for task-service
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/taskscheduler}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:password}
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:rabbitmq}
+    port: ${SPRING_RABBITMQ_PORT:5672}
+    username: ${SPRING_RABBITMQ_USERNAME:guest}
+    password: ${SPRING_RABBITMQ_PASSWORD:guest}
+
+# Eureka Configuration - ENABLED for Docker
+eureka:
+  client:
+    enabled: true
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://discovery-service:8761/eureka}
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    hostname: ${EUREKA_INSTANCE_HOSTNAME:task-service}
+    prefer-ip-address: false
+
+app:
+  auth-service-url: ${AUTH_SERVICE_URL:http://auth-service:8081}

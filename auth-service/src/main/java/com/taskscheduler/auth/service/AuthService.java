@@ -1,22 +1,26 @@
 package com.taskscheduler.auth.service;
 
+import com.taskscheduler.auth.dto.UserDTO;
 import com.taskscheduler.auth.entity.User;
 import com.taskscheduler.auth.repository.UserRepository;
 import com.taskscheduler.auth.util.JwtUtil;
-import com.taskscheduler.common.dto.UserDTO;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
 @Service
-@RequiredArgsConstructor
 public class AuthService {
     
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
+    }
     
     public String register(UserDTO userDTO) {
         if (userRepository.existsByUsername(userDTO.getUsername())) {

@@ -1,20 +1,21 @@
 package com.taskscheduler.auth.controller;
 
-import com.taskscheduler.auth.entity.User;
+import com.taskscheduler.auth.dto.ApiResponse;
+import com.taskscheduler.auth.dto.UserDTO;
 import com.taskscheduler.auth.service.AuthService;
-import com.taskscheduler.common.dto.ApiResponse;
-import com.taskscheduler.common.dto.UserDTO;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
-@RequiredArgsConstructor
 public class AuthController {
     
     private final AuthService authService;
+    
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
     
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<Map<String, String>>> register(@RequestBody UserDTO userDTO) {

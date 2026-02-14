@@ -1,4 +1,3 @@
-// auth-service/src/main/java/com/taskscheduler/auth/AuthServiceApplication.java
 package com.taskscheduler.auth;
 
 import org.springframework.boot.SpringApplication;
